@@ -33,3 +33,5 @@ config/samples/ndb.yaml
 test/__debug_bin
 automation/sandbox
 automation/tests/*/*.log
+
+config/samples/ndb_v1aplha1_secrets.yaml

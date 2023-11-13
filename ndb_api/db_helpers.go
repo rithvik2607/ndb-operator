@@ -14,6 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/*
+What all parameters NDB needs to provision Postgres HA database?
+
+Does the operator need to send a request to NDB if one instance fails? For example if out of 3 instances one fails on NDB, does the controller have to issue the request to bring up one instance or will NDB take care of bringing up the instance.
+*/
 package ndb_api
 
 import (
@@ -108,8 +113,11 @@ func GenerateProvisioningRequest(ctx context.Context, ndb_client *ndb_client.NDB
 		},
 	}
 
+	// temporary boolean for high availability
+	isHighAvailability := false
+
 	// Appending request body based on database type
-	appender, err := GetDbProvRequestAppender(database.GetDBInstanceType())
+	appender, err := GetDbProvRequestAppender(database.GetDBInstanceType(), isHighAvailability)
 	if err != nil {
 		log.Error(err, "Error while appending provisioning request")
 		return
@@ -218,6 +226,8 @@ type MongoDbProvisionRequestAppender struct{}
 
 type PostgresProvisionRequestAppender struct{}
 
+type PostgresHaProvisionRequestAppender struct{}
+
 type MySqlProvisionRequestAppender struct{}
 
 func (a *MSSQLProvisionRequestAppender) appendRequest(req *DatabaseProvisionRequest, database DatabaseInterface, reqData map[string]interface{}) (*DatabaseProvisionRequest, error) {
@@ -313,6 +323,47 @@ func (a *PostgresProvisionRequestAppender) appendRequest(req *DatabaseProvisionR
 	return req, nil
 }
 
+func (a *PostgresHaProvisionRequestAppender) appendRequest(req *DatabaseProvisionRequest, database DatabaseInterface, reqData map[string]interface{}) (*DatabaseProvisionRequest, error) {
+	dbPassword := reqData[common.NDB_PARAM_PASSWORD].(string)
+	databaseNames := database.GetDBInstanceDatabaseNames()
+	clusterName := reqData[common.NDB_PARAM_CLUSTER_NAME].(string)
+	patroniClusterName := reqData[common.NDB_PARAM_PATRONI_CLUSTER_NAME].(string)
+	SSHPublicKey := reqData[common.NDB_PARAM_SSH_PUBLIC_KEY].(string)
+	req.SSHPublicKey = SSHPublicKey
+
+	// Default action arguments
+	actionArguments := map[string]string{
+		"proxy_read_port":         "5001",
+		"listener_port":           "5432",
+		"proxy_write_port":        "5000",
+		"enable_synchronous_mode": "true",
+		"auto_tune_staging_drive": "true",
+		"backup_policy":           "primary_only",
+		"db_password":             dbPassword,
+		"database_names":          databaseNames,
+		"provision_virtual_ip":    "true",
+		"deploy_haproxy":          "true",
+		"failover_mode":           "Automatic",
+		"node_type":               "database",
+		"allocate_pg_hugepage":    "false",
+		"cluster_database":        "false",
+		"archive_wal_expire_days": "-1",
+		"enable_peer_auth":        "false",
+		"cluster_name":            clusterName,
+		"patroni_cluster_name":    patroniClusterName,
+	}
+
+	// Appending/overwriting database actionArguments to actionArguments
+	if err := setConfiguredActionArguments(database, actionArguments); err != nil {
+		return nil, err
+	}
+
+	// Converting action arguments map to list and appending to req.ActionArguments
+	req.ActionArguments = append(req.ActionArguments, convertMapToActionArguments(actionArguments)...)
+
+	return req, nil
+}
+
 func (a *MySqlProvisionRequestAppender) appendRequest(req *DatabaseProvisionRequest, database DatabaseInterface, reqData map[string]interface{}) (*DatabaseProvisionRequest, error) {
 	dbPassword := reqData[common.NDB_PARAM_PASSWORD].(string)
 	databaseNames := database.GetDBInstanceDatabaseNames()
@@ -339,12 +390,16 @@ func (a *MySqlProvisionRequestAppender) appendRequest(req *DatabaseProvisionRequ
 }
 
 // Get specific implementation of the DBProvisionRequestAppender interface based on the provided databaseType
-func GetDbProvRequestAppender(databaseType string) (requestAppender DBProvisionRequestAppender, err error) {
+func GetDbProvRequestAppender(databaseType string, isHighAvailability bool) (requestAppender DBProvisionRequestAppender, err error) {
 	switch databaseType {
 	case common.DATABASE_TYPE_MYSQL:
 		requestAppender = &MySqlProvisionRequestAppender{}
 	case common.DATABASE_TYPE_POSTGRES:
-		requestAppender = &PostgresProvisionRequestAppender{}
+		if isHighAvailability {
+			requestAppender = &PostgresHaProvisionRequestAppender{}
+		} else {
+			requestAppender = &PostgresProvisionRequestAppender{}
+		}
 	case common.DATABASE_TYPE_MONGODB:
 		requestAppender = &MongoDbProvisionRequestAppender{}
 	case common.DATABASE_TYPE_MSSQL:

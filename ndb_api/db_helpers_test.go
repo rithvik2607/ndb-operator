@@ -106,7 +106,7 @@ func TestGetRequestAppenderByType(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got, _ := GetDbProvRequestAppender(tc.databaseType)
+		got, _ := GetDbProvRequestAppender(tc.databaseType, false)
 		if !reflect.DeepEqual(tc.expected, got) {
 			t.Fatalf("expected: %v, got: %v", tc.expected, got)
 		}
@@ -166,7 +166,7 @@ func TestPostgresProvisionRequestAppenderWithoutAdditionalArgumentsValid(t *test
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -247,7 +247,7 @@ func TestPostgresProvisionRequestAppenderWithAdditionalArgumentsValid(t *testing
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -293,7 +293,7 @@ func TestPostgresProvisionRequestAppenderWithAdditionalArgumentsInvalid(t *testi
 	})
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_POSTGRES, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -399,7 +399,7 @@ func TestMSSQLProvisionRequestAppenderWithoutAdditionalArgumentsValid(t *testing
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -530,7 +530,7 @@ func TestMSSQLProvisionRequestAppenderWithAdditionalArgumentsValid(t *testing.T)
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -592,7 +592,7 @@ func TestMSSQLProvisionRequestAppenderWithAdditionalArgumentsInvalid(t *testing.
 	})
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MSSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -668,7 +668,7 @@ func TestMongoDbProvisionRequestAppenderWithoutAdditionalArgumentsValid(t *testi
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -755,7 +755,7 @@ func TestMongoDbProvisionRequestAppenderWithActionArgumentsValid(t *testing.T) {
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -801,7 +801,7 @@ func TestMongoDbProvisionRequestAppenderWithAdditionalArgumentsInvalid(t *testin
 	})
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MONGODB, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -856,7 +856,7 @@ func TestMySqlProvisionRequestAppenderWithoutAdditionalArgumentsValid(t *testing
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -921,7 +921,7 @@ func TestMySqlProvisionRequestAppenderWithAdditionalArgumentsValid(t *testing.T)
 	}
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
@@ -967,7 +967,7 @@ func TestMySqlProvisionRequestAppenderWithAdditionalArgumentsInvalid(t *testing.
 	})
 
 	// Get specific implementation of RequestAppender
-	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL)
+	requestAppender, _ := GetDbProvRequestAppender(common.DATABASE_TYPE_MYSQL, false)
 
 	// Call function being tested
 	resultRequest, err := requestAppender.appendRequest(baseRequest, mockDatabase, reqData)
